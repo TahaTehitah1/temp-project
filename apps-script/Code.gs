@@ -187,7 +187,7 @@ function getResponse(pin, attendeeKey) {
   const keyCol = headers.indexOf('Attendee Key');
   if (keyCol < 0) return { ok: true, found: false };
 
-  const tz = ss.getSpreadsheetTimeZone();
+  const tz = timeZone_(ss);
   for (let r = data.length - 1; r >= 1; r--) {
     if (String(data[r][keyCol]) !== attendeeKey) continue;
     const row = data[r];
@@ -257,7 +257,7 @@ function submitResponse(pin, payload) {
   } finally {
     lock.releaseLock();
   }
-  return { ok: true, updated: !!rowNum, at: toText_(now, ss.getSpreadsheetTimeZone()) };
+  return { ok: true, updated: !!rowNum, at: toText_(now, timeZone_(ss)) };
 }
 
 // ---- Helpers ----------------------------------------------------------------
@@ -376,7 +376,7 @@ function submittedIndex_(ss) {
   const atCol = headers.indexOf('Updated At');
   const byCol = headers.indexOf('Captured By');
   if (keyCol < 0) return index;
-  const tz = ss.getSpreadsheetTimeZone();
+  const tz = timeZone_(ss);
   for (let r = 1; r < data.length; r++) {
     const key = String(data[r][keyCol]);
     if (key) index[key] = { at: atCol < 0 ? '' : toText_(data[r][atCol], tz), by: byCol < 0 ? '' : toText_(data[r][byCol], tz) };
@@ -446,7 +446,25 @@ function isDate_(v) {
   return Object.prototype.toString.call(v) === '[object Date]';
 }
 
+/**
+ * Some spreadsheets report no time zone, and Utilities.formatDate throws on
+ * that, so fall back to the script's zone, then UTC.
+ */
+function timeZone_(ss) {
+  let tz = '';
+  try {
+    tz = ss.getSpreadsheetTimeZone();
+  } catch (e) {}
+  if (!tz) tz = Session.getScriptTimeZone();
+  return tz ? String(tz) : 'UTC';
+}
+
+/** Never throws: a formatting problem must not turn a saved entry into a "failed" one. */
 function toText_(v, tz, format) {
-  if (isDate_(v)) return Utilities.formatDate(v, tz, format || 'MMM d, h:mm a');
-  return v == null ? '' : String(v);
+  if (!isDate_(v)) return v == null ? '' : String(v);
+  try {
+    return Utilities.formatDate(v, tz, format || 'MMM d, h:mm a');
+  } catch (e) {
+    return Utilities.formatDate(v, 'UTC', format || 'MMM d, h:mm a');
+  }
 }
