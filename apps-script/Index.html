@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <style>
+    :root {
+      --ink: #2a3650;
+      --muted: #5f6878;
+      --line: #d7dde5;
+      --input-line: #a9b3c1;
+      --band: #dce8f3;
+      --accent: #2f6fb7;
+      --go: #1fbf5c;
+      --go-hover: #19a94f;
+      --danger: #d63a3a;
+      --warn-bg: #fff3dc;
+      --warn-ink: #855000;
+      --ok-bg: #e3f5e9;
+      --ok-ink: #17703a;
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: #fff;
+      color: var(--ink);
+      font: 15px/1.45 Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    button { font: inherit; }
+
+    .brand { text-align: center; padding: 18px 16px 10px; }
+    .brand img { width: 150px; height: auto; }
+    .card {
+      max-width: 760px;
+      margin: 0 auto 56px;
+      background: #fff;
+      border: 1px solid #e2e6eb;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .hero { background: var(--band); padding: 28px 40px; }
+    .hero h1 { margin: 0 0 8px; font-size: 26px; line-height: 1.3; font-weight: 600; }
+    .hero p { margin: 0; font-size: 14px; }
+    .content { padding: 12px 36px 36px; }
+
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center;
+      padding: 10px 0 0; font-size: 13px; color: var(--muted);
+    }
+    .toolbar label { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .toolbar input { width: 190px; padding: 5px 8px; font-size: 14px; }
+    .pending {
+      margin-top: 12px; padding: 10px 12px; border-radius: 6px;
+      background: var(--warn-bg); color: var(--warn-ink); font-size: 14px;
+    }
+    .pending[hidden] { display: none; }
+
+    .section-title {
+      background: var(--band); border-radius: 6px; padding: 12px 14px;
+      margin: 26px 0 6px; font-size: 16px; font-weight: 600;
+    }
+    .field { border: 0; margin: 0; padding: 14px 2px; min-width: 0; }
+    .q, .finder > label {
+      display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; padding: 0;
+    }
+    .req { color: var(--danger); margin-left: 5px; }
+    input[type=text], input[type=email], input[type=date], input[type=search], input[type=password], textarea {
+      width: 100%; max-width: 420px;
+      font: inherit; font-size: 16px; color: var(--ink);
+      padding: 8px 10px; border: 1px solid var(--input-line); border-radius: 5px; background: #fff;
+    }
+    input[type=date] { min-height: 40px; }
+    textarea { max-width: none; min-height: 110px; resize: vertical; }
+    input:focus, textarea:focus { outline: 3px solid rgba(47, 111, 183, .25); border-color: var(--accent); }
+    .opt { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; cursor: pointer; font-size: 14.5px; }
+    .opt input { width: 20px; height: 20px; margin: 1px 0 0; flex: none; accent-color: var(--accent); }
+    .hint { font-size: 12px; color: var(--muted); margin: 5px 0 0; }
+    .err { color: var(--danger); font-size: 13px; margin-top: 6px; }
+    .err:empty { display: none; }
+    .invalid input[type=text], .invalid input[type=email], .invalid textarea { border-color: var(--danger); }
+
+    .finder { padding: 14px 2px 6px; }
+    .search-row { display: flex; gap: 8px; max-width: 560px; }
+    .search-row input { max-width: none; flex: 1; }
+    .icon-btn {
+      flex: none; width: 42px; border: 1px solid var(--input-line); border-radius: 5px;
+      background: #fff; color: var(--accent); font-size: 18px; cursor: pointer;
+    }
+    .finder .hint { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12.5px; }
+    .results {
+      list-style: none; margin: 8px 0 0; padding: 0; max-width: 560px;
+      border: 1px solid var(--line); border-radius: 6px; max-height: 360px; overflow-y: auto;
+    }
+    .results:empty { display: none; }
+    .results li + li { border-top: 1px solid var(--line); }
+    .result {
+      display: block; width: 100%; text-align: left; background: #fff; border: 0;
+      padding: 10px 12px; color: inherit; cursor: pointer;
+    }
+    .result:hover, .result:focus { background: #eef4fb; outline: none; }
+    .results .note { padding: 10px 12px; font-size: 13px; color: var(--muted); }
+    .name { font-weight: 600; }
+    .meta { display: block; font-size: 13px; color: var(--muted); }
+    .badge {
+      display: inline-block; font-size: 11.5px; font-weight: 600; line-height: 1.6;
+      padding: 0 7px; border-radius: 999px; margin-left: 6px; vertical-align: 1px;
+    }
+    .badge.done { background: var(--ok-bg); color: var(--ok-ink); }
+    .badge.cancel { background: var(--warn-bg); color: var(--warn-ink); }
+    .selected {
+      margin-top: 12px; padding: 12px 14px; max-width: 560px;
+      border-radius: 6px; background: #eef4fb; border: 1px solid #c8daef;
+    }
+    .selected[hidden] { display: none; }
+    .selected .row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .selected .status { margin: 8px 0 0; font-size: 13px; }
+    .selected .status:empty { display: none; }
+    .link {
+      background: none; border: 0; padding: 0; color: var(--accent);
+      font-size: 14px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px;
+    }
+
+    .form-error { color: var(--danger); text-align: center; margin: 18px 0 0; white-space: pre-line; }
+    .form-error:empty { display: none; }
+    .actions { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-top: 28px; }
+    .submit {
+      background: var(--go); color: #fff; border: 0; border-radius: 5px;
+      font-weight: 600; font-size: 16px; padding: 12px 0; width: 180px; cursor: pointer;
+    }
+    .submit:hover { background: var(--go-hover); }
+    .submit:disabled { opacity: .6; cursor: progress; }
+
+    .toast {
+      position: fixed; left: 50%; bottom: 20px; z-index: 10;
+      transform: translate(-50%, 16px); opacity: 0; pointer-events: none; transition: .2s;
+      width: max-content; max-width: calc(100% - 32px);
+      background: #1f2a3d; color: #fff; padding: 12px 18px; border-radius: 8px; font-size: 14px;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .overlay {
+      position: fixed; inset: 0; z-index: 20; padding: 16px;
+      display: flex; align-items: center; justify-content: center; background: rgba(20, 28, 40, .55);
+    }
+    .overlay[hidden] { display: none; }
+    .dialog { background: #fff; border-radius: 10px; padding: 22px; width: 100%; max-width: 360px; }
+    .dialog h2 { margin: 0 0 6px; font-size: 18px; }
+    .dialog p { margin: 0 0 14px; font-size: 14px; color: var(--muted); }
+    .dialog .submit { width: 100%; margin-top: 14px; }
+
+    @media (max-width: 600px) {
+      .brand { padding-top: 12px; }
+      .brand img { width: 118px; }
+      .card { border: 0; border-radius: 0; margin-bottom: 32px; }
+      .hero { padding: 18px 16px; }
+      .hero h1 { font-size: 21px; }
+      .content { padding: 4px 16px 32px; }
+      .toolbar input { width: 100%; }
+      .toolbar label { flex: 1; }
+      .submit { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header class="brand"><?!= include_('Logo') ?></header>
+
+  <main class="card">
+    <div class="hero">
+      <h1 id="title"></h1>
+      <p id="subtitle"></p>
+    </div>
+    <div class="content">
+      <div class="toolbar">
+        <label>Booth staff <input id="staff" type="text" placeholder="Your name" autocomplete="off"></label>
+      </div>
+      <div id="pending" class="pending" hidden>
+        <span id="pendingText"></span>
+        <button type="button" id="syncNow" class="link">Sync now</button>
+      </div>
+
+      <form id="form" novalidate></form>
+    </div>
+  </main>
+
+  <!-- Moved into the first section by renderForm(). -->
+  <div id="finder" class="finder">
+    <label for="search">Find attendee</label>
+    <div class="search-row">
+      <input id="search" type="search" placeholder="Type a name or company…" autocomplete="off"
+             autocorrect="off" autocapitalize="off" spellcheck="false">
+      <button type="button" id="refresh" class="icon-btn" title="Reload attendee list" aria-label="Reload attendee list">↻</button>
+    </div>
+    <p class="hint"><span id="listInfo">Loading attendee list…</span>
+      <button type="button" id="manual" class="link">Not on the list? Fill in manually</button></p>
+    <ul id="results" class="results"></ul>
+    <div id="selected" class="selected" hidden>
+      <div class="row">
+        <div>
+          <span id="selName" class="name"></span><span id="selBadges"></span>
+          <span id="selMeta" class="meta"></span>
+        </div>
+        <button type="button" id="change" class="link">Change</button>
+      </div>
+      <p id="selStatus" class="status"></p>
+    </div>
+  </div>
+
+  <div id="actions">
+    <p id="formError" class="form-error" role="alert"></p>
+    <div class="actions">
+      <button type="submit" id="submit" class="submit">Submit</button>
+      <button type="button" id="clear" class="link">Clear form</button>
+    </div>
+  </div>
+
+  <div id="pinBox" class="overlay" hidden>
+    <form id="pinForm" class="dialog">
+      <h2>Booth PIN</h2>
+      <p id="pinMsg">Enter the booth PIN.</p>
+      <input id="pin" type="password" autocomplete="off" aria-label="Booth PIN">
+      <button type="submit" class="submit">Unlock</button>
+    </form>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+  (function () {
+    'use strict';
+
+    var FORM = <?!= formJson ?>;
+    var FIELDS = FORM.sections.reduce(function (all, s) { return all.concat(s.fields); }, []);
+    var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    var RESULT_LIMIT = 25;
+
+    // localStorage can be unavailable (private mode, blocked storage); the app
+    // still works, it just can't keep unsynced entries across a reload.
+    var store = {
+      get: function (k, fallback) {
+        try {
+          var v = localStorage.getItem('dronetiks.' + k);
+          return v == null ? fallback : JSON.parse(v);
+        } catch (e) { return fallback; }
+      },
+      set: function (k, v) {
+        try { localStorage.setItem('dronetiks.' + k, JSON.stringify(v)); return true; } catch (e) { return false; }
+      },
+    };
+
+    var state = {
+      attendees: [],
+      byKey: {},
+      submitted: {},
+      selected: null,
+      touched: {},
+      responseId: newId(),
+      queue: store.get('queue', []),
+      queueSaved: true,
+      flushing: false,
+      busy: false,
+      loaded: false,
+      pin: store.get('pin', ''),
+    };
+
+    function $(id) { return document.getElementById(id); }
+
+    function el(tag, props, children) {
+      var node = document.createElement(tag);
+      Object.keys(props || {}).forEach(function (k) {
+        if (k === 'text') node.textContent = props[k];
+        else if (k === 'className') node.className = props[k];
+        else node.setAttribute(k, props[k]);
+      });
+      (children || []).forEach(function (c) { if (c) node.appendChild(c); });
+      return node;
+    }
+
+    function newId() {
+      try { return crypto.randomUUID(); } catch (e) {
+        return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12);
+      }
+    }
+
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    function today() {
+      var d = new Date();
+      return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+    }
+
+    function norm(s) {
+      return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    }
+
+    function errorText(err) { return (err && err.message) || String(err || 'Unknown error'); }
+
+    function callServer(fn, args, timeoutMs) {
+      return new Promise(function (resolve, reject) {
+        var settled = false;
+        var timer = setTimeout(function () {
+          if (!settled) { settled = true; reject(new Error('No response from the server (timed out).')); }
+        }, timeoutMs || 40000);
+        var runner = google.script.run
+          .withSuccessHandler(function (r) { if (!settled) { settled = true; clearTimeout(timer); resolve(r); } })
+          .withFailureHandler(function (e) { if (!settled) { settled = true; clearTimeout(timer); reject(e); } });
+        runner[fn].apply(runner, args);
+      });
+    }
+
+    var toastTimer;
+    function toast(msg) {
+      var t = $('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { t.classList.remove('show'); }, 4000);
+    }
+
+    // ---- Form -------------------------------------------------------------
+
+    function renderForm() {
+      $('title').textContent = FORM.title;
+      $('subtitle').textContent = FORM.subtitle;
+      var form = $('form');
+      FORM.sections.forEach(function (section, i) {
+        var sec = el('section', {}, [el('h2', { className: 'section-title', text: section.title })]);
+        if (i === 0) sec.appendChild($('finder'));
+        section.fields.forEach(function (f) { sec.appendChild(renderField(f)); });
+        form.appendChild(sec);
+      });
+      form.appendChild($('actions'));
+    }
+
+    function renderField(f) {
+      var isChoice = !!f.options;
+      var wrap = el(isChoice ? 'fieldset' : 'div', { className: 'field', 'data-id': f.id });
+      var title = el(isChoice ? 'legend' : 'label', { className: 'q', text: f.label });
+      if (!isChoice) title.htmlFor = 'f_' + f.id;
+      if (f.required) title.appendChild(el('span', { className: 'req', text: '*', 'aria-hidden': 'true' }));
+      wrap.appendChild(title);
+
+      if (isChoice) {
+        f.options.forEach(function (opt, j) {
+          var input = el('input', { type: 'radio', name: f.id, id: 'f_' + f.id + '_' + j });
+          input.value = opt;
+          var lab = el('label', { className: 'opt' }, [input, el('span', { text: opt })]);
+          lab.htmlFor = input.id;
+          wrap.appendChild(lab);
+        });
+      } else {
+        var input = el(f.type === 'textarea' ? 'textarea' : 'input', { id: 'f_' + f.id, name: f.id, autocomplete: 'off' });
+        if (f.type === 'textarea') input.rows = 4;
+        else input.type = f.type;
+        if (f.required) input.setAttribute('aria-required', 'true');
+        if (f.type === 'email') {
+          input.setAttribute('inputmode', 'email');
+          input.setAttribute('autocapitalize', 'off');
+          input.spellcheck = false;
+        } else if (f.type === 'text') {
+          input.setAttribute('autocapitalize', 'words');
+        }
+        wrap.appendChild(input);
+      }
+      if (f.hint) wrap.appendChild(el('p', { className: 'hint', text: f.hint }));
+      wrap.appendChild(el('div', { className: 'err', id: 'err_' + f.id }));
+      return wrap;
+    }
+
+    function fieldById(id) {
+      for (var i = 0; i < FIELDS.length; i++) if (FIELDS[i].id === id) return FIELDS[i];
+      return null;
+    }
+
+    function getValue(f) {
+      if (f.options) {
+        var checked = $('form').querySelector('input[name="' + f.id + '"]:checked');
+        return checked ? checked.value : '';
+      }
+      return $('f_' + f.id).value.trim();
+    }
+
+    function setValue(f, v) {
+      v = v == null ? '' : String(v);
+      if (f.options) {
+        $('form').querySelectorAll('input[name="' + f.id + '"]').forEach(function (r) { r.checked = r.value === v; });
+      } else {
+        $('f_' + f.id).value = v;
+      }
+      showError(f, '');
+    }
+
+    function defaultValue(f) { return f.default === 'today' ? today() : (f.default || ''); }
+
+    function collect() {
+      var values = {};
+      FIELDS.forEach(function (f) { values[f.id] = getValue(f); });
+      return values;
+    }
+
+    function showError(f, msg) {
+      $('err_' + f.id).textContent = msg;
+      document.querySelector('[data-id="' + f.id + '"]').classList.toggle('invalid', !!msg);
+    }
+
+    function validate(values) {
+      var first = null;
+      FIELDS.forEach(function (f) {
+        var v = values[f.id];
+        var msg = '';
+        if (f.required && !v) msg = 'This field is required.';
+        else if (v && f.type === 'email' && !EMAIL_RE.test(v)) msg = 'Enter a valid email address, e.g. name@company.com.';
+        showError(f, msg);
+        if (msg && !first) first = f;
+      });
+      if (first) {
+        var node = document.querySelector('[data-id="' + first.id + '"]');
+        node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        var input = node.querySelector('input, textarea');
+        if (input) setTimeout(function () { input.focus({ preventScroll: true }); }, 300);
+      }
+      return !first;
+    }
+
+    /** Clears everything the app filled in, keeping what the user typed. */
+    function clearFilled() {
+      FIELDS.forEach(function (f) {
+        if (!f.keep && !state.touched[f.id]) setValue(f, defaultValue(f));
+      });
+    }
+
+    function resetForm() {
+      state.touched = {};
+      state.selected = null;
+      state.responseId = newId();
+      FIELDS.forEach(function (f) {
+        if (!f.keep || !getValue(f)) setValue(f, defaultValue(f));
+      });
+      $('formError').textContent = '';
+      $('search').value = '';
+      renderResults();
+      renderSelected();
+    }
+
+    /** Fills answers saved earlier, except fields the user already edited and the visit date. */
+    function applyPrevious(values) {
+      FIELDS.forEach(function (f) {
+        if (f.keep || f.type === 'date' || state.touched[f.id] || !values[f.id]) return;
+        setValue(f, values[f.id]);
+      });
+    }
+
+    function displayName(values) {
+      return FIELDS.filter(function (f) { return f.fill === 'first' || f.fill === 'last'; })
+        .map(function (f) { return values[f.id]; }).join(' ').trim();
+    }
+
+    // ---- Attendee search ----------------------------------------------------
+
+    function setAttendees(list) {
+      state.attendees = list || [];
+      state.byKey = {};
+      state.attendees.forEach(function (a) {
+        state.byKey[a.key] = a;
+        a._name = norm(a.first + ' ' + a.last);
+        a._hay = norm([a.first, a.last, a.company, a.code].join(' '));
+        a._words = a._name.split(/[^a-z0-9]+/);
+        a._cwords = norm(a.company).split(/[^a-z0-9]+/);
+      });
+    }
+
+    function search(query) {
+      var q = norm(query).trim();
+      var tokens = q.split(/\s+/).filter(Boolean);
+      if (!tokens.length) return [];
+      var scored = [];
+      state.attendees.forEach(function (a) {
+        if (!tokens.every(function (t) { return a._hay.indexOf(t) !== -1; })) return;
+        var score = 0;
+        tokens.forEach(function (t) {
+          var starts = function (w) { return w.indexOf(t) === 0; };
+          if (a._words.some(starts)) score += 3;
+          else if (a._cwords.some(starts)) score += 1;
+        });
+        if (a._name.indexOf(q) === 0) score += 2;
+        if (isCancelled(a)) score -= 1;
+        scored.push([score, a]);
+      });
+      scored.sort(function (x, y) {
+        return y[0] - x[0] || x[1].last.localeCompare(y[1].last) || x[1].first.localeCompare(y[1].first);
+      });
+      return scored.map(function (s) { return s[1]; });
+    }
+
+    function isCancelled(a) { return /cancel/i.test(a.status || ''); }
+
+    function badges(a) {
+      var frag = document.createDocumentFragment();
+      var sub = state.submitted[a.key];
+      if (sub) frag.appendChild(el('span', { className: 'badge done', text: sub.pending ? 'Saved on device' : '✓ Submitted' }));
+      if (isCancelled(a)) frag.appendChild(el('span', { className: 'badge cancel', text: 'Registration cancelled' }));
+      return frag;
+    }
+
+    function metaLine(a) {
+      return [a.title, a.company].filter(Boolean).join(' · ');
+    }
+
+    function renderResults() {
+      var list = $('results');
+      list.textContent = '';
+      var query = $('search').value;
+      if (!query.trim()) return;
+      var matches = search(query);
+      if (!matches.length) {
+        list.appendChild(el('li', {
+          className: 'note',
+          text: state.attendees.length
+            ? 'No match. Check the spelling, try the company name, or fill in manually.'
+            : 'The attendee list is not loaded. Fill in manually, or tap ↻ to retry.',
+        }));
+        return;
+      }
+      matches.slice(0, RESULT_LIMIT).forEach(function (a) {
+        var btn = el('button', { type: 'button', className: 'result', 'data-key': a.key }, [
+          el('span', { className: 'name', text: a.first + ' ' + a.last }),
+        ]);
+        btn.appendChild(badges(a));
+        btn.appendChild(el('span', { className: 'meta', text: metaLine(a) }));
+        list.appendChild(el('li', {}, [btn]));
+      });
+      if (matches.length > RESULT_LIMIT) {
+        list.appendChild(el('li', {
+          className: 'note',
+          text: 'Showing ' + RESULT_LIMIT + ' of ' + matches.length + '. Keep typing to narrow it down.',
+        }));
+      }
+    }
+
+    function latestQueued(key) {
+      for (var i = state.queue.length - 1; i >= 0; i--) {
+        if (state.queue[i].payload.attendeeKey === key) return state.queue[i];
+      }
+      return null;
+    }
+
+    function selectAttendee(a) {
+      clearFilled();
+      state.selected = a;
+      state.responseId = newId();
+      FIELDS.forEach(function (f) {
+        if (f.fill) setValue(f, a[f.fill] || (state.touched[f.id] ? getValue(f) : ''));
+      });
+      $('search').value = '';
+      renderResults();
+      var queued = latestQueued(a.key);
+      if (queued) {
+        applyPrevious(queued.payload.values);
+        renderSelected();
+      } else if (state.submitted[a.key]) {
+        renderSelected('Loading the earlier answers…');
+        loadPrevious(a.key);
+      } else {
+        renderSelected();
+      }
+      $('selected').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function loadPrevious(key) {
+      callServer('getResponse', [state.pin, key]).then(function (res) {
+        if (!state.selected || state.selected.key !== key) return;
+        if (res && res.authError) return askPin(res.error);
+        if (res && res.ok && res.found) {
+          applyPrevious(res.values);
+          state.submitted[key] = { at: res.at, by: res.by };
+        }
+        renderSelected();
+      }).catch(function () {
+        if (!state.selected || state.selected.key !== key) return;
+        renderSelected('Already submitted, but the earlier answers could not be loaded (no connection). ' +
+          'Submitting replaces them.');
+      });
+    }
+
+    function renderSelected(statusOverride) {
+      var a = state.selected;
+      $('selected').hidden = !a;
+      if (!a) return;
+      $('selName').textContent = a.first + ' ' + a.last;
+      $('selBadges').textContent = '';
+      $('selBadges').appendChild(badges(a));
+      $('selMeta').textContent = metaLine(a);
+      var status = statusOverride || '';
+      var sub = state.submitted[a.key];
+      if (!status && sub && sub.pending) {
+        status = 'Saved on this device earlier and not synced yet. Those answers are loaded; submitting replaces them.';
+      } else if (!status && sub) {
+        status = 'Already submitted' + (sub.at ? ' ' + sub.at : '') + (sub.by ? ' by ' + sub.by : '') +
+          '. The earlier answers are loaded; submitting updates that entry instead of adding a new one.';
+      }
+      $('selStatus').textContent = status;
+    }
+
+    function setListInfo(text) { $('listInfo').textContent = text; }
+
+    function loadAttendees(silent) {
+      if (!silent) setListInfo('Loading attendee list…');
+      return callServer('getBootstrap', [state.pin], 60000).then(function (res) {
+        if (res && res.authError) return askPin(res.error);
+        if (!res || !res.ok) throw new Error((res && res.error) || 'Unexpected reply');
+        setAttendees(res.attendees);
+        state.submitted = res.submitted || {};
+        markQueued();
+        state.loaded = true;
+        store.set('attendees', { at: Date.now(), list: res.attendees });
+        setListInfo(res.attendees.length.toLocaleString() + ' attendees loaded.');
+        renderResults();
+        renderSelected();
+      }).catch(function (err) {
+        if (silent && state.loaded) return;
+        var cached = store.get('attendees', null);
+        if (cached && cached.list && !state.attendees.length) {
+          setAttendees(cached.list);
+          markQueued();
+        }
+        setListInfo(state.attendees.length
+          ? 'No connection: using the attendee list saved on this device (' + state.attendees.length + ').'
+          : 'Could not load the attendee list (' + errorText(err) + '). You can still fill the form manually.');
+        renderResults();
+      });
+    }
+
+    // ---- Saving and the offline queue --------------------------------------
+
+    function markQueued() {
+      state.queue.forEach(function (item) {
+        var key = item.payload.attendeeKey;
+        if (key) state.submitted[key] = { pending: true, by: item.payload.capturedBy };
+      });
+    }
+
+    function saveQueue() {
+      state.queueSaved = store.set('queue', state.queue);
+      renderPending();
+    }
+
+    function dropQueued(key) {
+      if (!key) return;
+      state.queue = state.queue.filter(function (item) { return item.payload.attendeeKey !== key; });
+    }
+
+    function renderPending() {
+      var n = state.queue.length;
+      $('pending').hidden = !n;
+      if (!n) return;
+      var text = n + (n === 1 ? ' entry is' : ' entries are') + ' saved on this device but not synced yet.';
+      if (!state.queueSaved) text += ' Keep this page open until they sync.';
+      var lastError = state.queue[0].error;
+      if (lastError) text += ' (' + lastError + ')';
+      $('pendingText').textContent = text;
+    }
+
+    function flushQueue() {
+      if (state.flushing || !state.queue.length) return;
+      state.flushing = true;
+      var item = state.queue[0];
+      callServer('submitResponse', [state.pin, item.payload]).then(function (res) {
+        state.flushing = false;
+        if (res && res.ok) {
+          state.queue = state.queue.filter(function (q) { return q !== item; });
+          if (item.payload.attendeeKey) {
+            state.submitted[item.payload.attendeeKey] = { at: res.at, by: item.payload.capturedBy };
+          }
+          saveQueue();
+          renderSelected();
+          if (!state.queue.length) toast('All saved entries are synced ✓');
+          flushQueue();
+        } else if (res && res.authError) {
+          askPin(res.error);
+        } else {
+          // Rejected by the server (e.g. a question changed): move it to the back so it can't block the rest.
+          item.error = (res && res.error) || 'Rejected by the server';
+          state.queue = state.queue.filter(function (q) { return q !== item; }).concat([item]);
+          saveQueue();
+        }
+      }).catch(function (err) {
+        state.flushing = false;
+        item.error = errorText(err);
+        saveQueue();
+      });
+    }
+
+    function finish(payload, queued, res) {
+      var name = displayName(payload.values) || 'Entry';
+      var key = payload.attendeeKey;
+      if (key) state.submitted[key] = queued ? { pending: true, by: payload.capturedBy } : { at: res.at, by: payload.capturedBy };
+      toast(queued
+        ? name + ' saved on this device. It will sync when the connection is back.'
+        : name + (res.updated ? ' updated ✓' : ' saved ✓'));
+      resetForm();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function onSubmit(ev) {
+      ev.preventDefault();
+      if (state.busy) return;
+      $('formError').textContent = '';
+      var values = collect();
+      if (!validate(values)) return;
+      var payload = {
+        responseId: state.responseId,
+        attendeeKey: state.selected ? state.selected.key : '',
+        capturedBy: $('staff').value.trim(),
+        values: values,
+      };
+      setBusy(true);
+      var request = navigator.onLine === false
+        ? Promise.reject(new Error('No connection'))
+        : callServer('submitResponse', [state.pin, payload]);
+      request.then(function (res) {
+        setBusy(false);
+        if (res && res.ok) {
+          dropQueued(payload.attendeeKey);
+          saveQueue();
+          finish(payload, false, res);
+        } else if (res && res.authError) {
+          askPin(res.error);
+        } else {
+          $('formError').textContent = (res && res.error) || 'The server rejected this entry.';
+        }
+      }, function (err) {
+        setBusy(false);
+        dropQueued(payload.attendeeKey);
+        state.queue.push({ payload: payload, queuedAt: Date.now(), error: errorText(err) });
+        saveQueue();
+        finish(payload, true);
+      });
+    }
+
+    function setBusy(busy) {
+      state.busy = busy;
+      $('submit').disabled = busy;
+      $('submit').textContent = busy ? 'Saving…' : 'Submit';
+    }
+
+    // ---- PIN ------------------------------------------------------------------
+
+    function askPin(message) {
+      $('pinMsg').textContent = message || 'Enter the booth PIN.';
+      $('pin').value = '';
+      $('pinBox').hidden = false;
+      setTimeout(function () { $('pin').focus(); }, 50);
+    }
+
+    function onPin(ev) {
+      ev.preventDefault();
+      state.pin = $('pin').value.trim();
+      store.set('pin', state.pin);
+      $('pinBox').hidden = true;
+      loadAttendees(false);
+      flushQueue();
+    }
+
+    // ---- Wiring -------------------------------------------------------------
+
+    function init() {
+      renderForm();
+      resetForm();
+      $('staff').value = store.get('staff', '');
+      markQueued();
+      renderPending();
+
+      var form = $('form');
+      form.addEventListener('submit', onSubmit);
+      form.addEventListener('input', onEdit);
+      form.addEventListener('change', onEdit);
+      $('pinForm').addEventListener('submit', onPin);
+      $('staff').addEventListener('input', function () { store.set('staff', $('staff').value.trim()); });
+
+      var searchTimer;
+      $('search').addEventListener('input', function () {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(renderResults, 80);
+      });
+      $('search').addEventListener('keydown', function (ev) {
+        if (ev.key !== 'Enter') return;
+        ev.preventDefault();
+        renderResults();
+        var first = $('results').querySelector('.result');
+        if (first) first.click();
+      });
+      $('results').addEventListener('click', function (ev) {
+        var btn = ev.target.closest('.result');
+        if (btn) selectAttendee(state.byKey[btn.getAttribute('data-key')]);
+      });
+      $('manual').addEventListener('click', function () {
+        if (state.selected) {
+          clearFilled();
+          state.selected = null;
+          state.responseId = newId();
+          renderSelected();
+        }
+        $('search').value = '';
+        renderResults();
+        var firstLead = FIELDS.filter(function (f) { return f.fill; })[0];
+        if (firstLead) $('f_' + firstLead.id).focus();
+      });
+      $('change').addEventListener('click', function () {
+        clearFilled();
+        state.selected = null;
+        state.responseId = newId();
+        renderSelected();
+        $('search').focus();
+      });
+      $('refresh').addEventListener('click', function () { loadAttendees(false); });
+      $('syncNow').addEventListener('click', flushQueue);
+      $('clear').addEventListener('click', function () {
+        if (confirm('Clear all answers on this form?')) resetForm();
+      });
+
+      window.addEventListener('online', function () {
+        flushQueue();
+        loadAttendees(true);
+      });
+      setInterval(function () { if (state.queue.length) flushQueue(); }, 30000);
+      setInterval(function () { if (navigator.onLine !== false) loadAttendees(true); }, 5 * 60000);
+
+      loadAttendees(false);
+      flushQueue();
+    }
+
+    function onEdit(ev) {
+      var name = ev.target && ev.target.name;
+      var f = name && fieldById(name);
+      if (!f) return;
+      state.touched[f.id] = true;
+      if ($('err_' + f.id).textContent) showError(f, '');
+    }
+
+    init();
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+# Attendee lists contain personal data; keep them in Google Sheets, not in git.
+*.xlsx
+*.xls
+*.csv
