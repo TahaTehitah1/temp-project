@@ -42,18 +42,18 @@ const FORM = {
       fields: [
         { id: 'date', header: 'Date', label: 'Date', type: 'date', default: 'today' },
         { id: 'eventName', header: 'Event Name', label: 'Event Name', type: 'text', default: 'Edge_2026', keep: true },
-        { id: 'firstName', header: 'First Name', label: 'First Name', type: 'text', required: true, fill: 'first' },
-        { id: 'lastName', header: 'Last Name', label: 'Last Name', type: 'text', required: true, fill: 'last' },
-        { id: 'company', header: 'Company Name', label: 'Company Name', type: 'text', required: true, fill: 'company' },
+        { id: 'firstName', header: 'First Name', label: 'First Name', type: 'text', required: false, fill: 'first' },
+        { id: 'lastName', header: 'Last Name', label: 'Last Name', type: 'text', required: false, fill: 'last' },
+        { id: 'company', header: 'Company Name', label: 'Company Name', type: 'text', required: false, fill: 'company' },
         { id: 'jobTitle', header: 'Job Title', label: 'Job Title', type: 'text', fill: 'title' },
-        { id: 'email', header: 'Corporate Email', label: 'Corporate Email', type: 'email', required: true, fill: 'email', hint: 'example@example.com' },
+        { id: 'email', header: 'Corporate Email', label: 'Corporate Email', type: 'email', required: false, fill: 'email', hint: 'example@example.com' },
       ],
     },
     {
       title: 'Facility Footprint & Scale',
       fields: [
         {
-          id: 'squareFootage', header: 'Square Footage', type: 'radio', required: true,
+          id: 'squareFootage', header: 'Square Footage', type: 'radio', required: false,
           label: 'Total square footage of your primary distribution or fulfillment center',
           options: [
             'Under 50,000 sq. ft. (Low priority — manual methods typically suffice)',
@@ -63,7 +63,7 @@ const FORM = {
           ],
         },
         {
-          id: 'rackHeight', header: 'Rack Height', type: 'radio', required: true,
+          id: 'rackHeight', header: 'Rack Height', type: 'radio', required: false,
           label: 'Maximum vertical clearance / top shelf height of pallet racks',
           options: [
             'Under 15 feet (Easy human reach)',
@@ -73,7 +73,7 @@ const FORM = {
           ],
         },
         {
-          id: 'aisles', header: 'Rack Aisles', type: 'radio', required: true,
+          id: 'aisles', header: 'Rack Aisles', type: 'radio', required: false,
           label: 'Average total inventory rack aisles per facility',
           options: ['1 – 20 aisles', '21 – 50 aisles', '51 – 100 aisles', '100+ aisles'],
         },
@@ -93,7 +93,7 @@ const FORM = {
       title: 'Operational Bottlenecks',
       fields: [
         {
-          id: 'cycleCount', header: 'Cycle Count Frequency', type: 'radio', required: true,
+          id: 'cycleCount', header: 'Cycle Count Frequency', type: 'radio', required: false,
           label: 'How often do you perform wall-to-wall cycle counting or full physical inventory checks?',
           options: ['Daily / Weekly rolling checks', 'Monthly', 'Quarterly / Bi-annually', 'Annually only'],
         },
@@ -103,7 +103,7 @@ const FORM = {
             '(e.g., 2:00 AM to 5:00 AM? Low-volume weekends?)',
         },
         {
-          id: 'trackingMethod', header: 'Location Tracking Method', type: 'radio', required: true,
+          id: 'trackingMethod', header: 'Location Tracking Method', type: 'radio', required: false,
           label: 'What is your primary methodology for tracking warehouse location assets?',
           options: [
             'Standard 1D/2D Barcode scanning',
@@ -113,7 +113,7 @@ const FORM = {
           ],
         },
         {
-          id: 'wms', header: 'WMS', type: 'radio', required: true,
+          id: 'wms', header: 'WMS', type: 'radio', required: false,
           label: 'What core Warehouse Management System (WMS) do you use?',
           options: [
             'SAP EWM / Oracle WMS',
